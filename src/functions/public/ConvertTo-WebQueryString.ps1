@@ -116,7 +116,7 @@
                 $encodedPairs += "$encodedKey=$encodedValue"
             }
         } else {
-            Write-Warning "InputObject type not supported: $($InputObject.GetType())"
+            throw "InputObject type not supported: $($InputObject.GetType())"
         }
     }
 
