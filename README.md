@@ -1,6 +1,6 @@
-# {{ NAME }}
+# Web
 
-{{ DESCRIPTION }}
+A PowerShell module that provides functionality for interacting with web resources.
 
 ## Prerequisites
 
@@ -12,29 +12,30 @@ This uses the following external resources:
 To install the module from the PowerShell Gallery, you can use the following command:
 
 ```powershell
-Install-PSResource -Name {{ NAME }}
-Import-Module -Name {{ NAME }}
+Install-PSResource -Name Web
+Import-Module -Name Web
 ```
 
 ## Usage
 
 Here is a list of example that are typical use cases for the module.
 
-### Example 1: Greet an entity
+### Example 1: Converts a hashtable into a query string
 
-Provide examples for typical commands that a user would like to do with the module.
+Converts a hashtable into a query string with key-value pairs
 
 ```powershell
-Greet-Entity -Name 'World'
-Hello, World!
+ConvertTo-WebQueryString -InputObject @{a = 1; b = 2 }
+# Outputs: ?a=1&b=2
 ```
 
-### Example 2
+### Example 2: Joins a base URI with child paths
 
-Provide examples for typical commands that a user would like to do with the module.
+Joins the base URI <https://example.com> with the child paths 'foo' and 'bar' to create the URI <https://example.com/foo/bar>.
 
 ```powershell
-Import-Module -Name PSModuleTemplate
+Join-WebUri -Path 'https://example.com' -ChildPath 'foo' -AdditionalChildPath 'bar'
+# Outputs: https://example.com/foo/bar
 ```
 
 ### Find more examples
@@ -43,11 +44,6 @@ To find more examples of how to use the module, please refer to the [examples](e
 
 Alternatively, you can use the Get-Command -Module 'This module' to find more commands that are available in the module.
 To find examples of each of the commands you can use Get-Help -Examples 'CommandName'.
-
-## Documentation
-
-Link to further documentation if available, or describe where in the repository users can find more detailed documentation about
-the module's functions and features.
 
 ## Contributing
 
@@ -63,7 +59,3 @@ Please see the issues tab on this project and submit a new issue that matches yo
 
 If you do code, we'd love to have your contributions. Please read the [Contribution guidelines](CONTRIBUTING.md) for more information.
 You can either help by picking up an existing issue or submit a new one if you have an idea for a new feature or improvement.
-
-## Acknowledgements
-
-Here is a list of people and projects that helped this project in some way.
