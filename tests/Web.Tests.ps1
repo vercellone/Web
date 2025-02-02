@@ -2,17 +2,17 @@
     Context 'ConvertTo-WebQueryString' {
         It 'Should convert a hashtable to a query string' {
             $result = ConvertTo-WebQueryString -InputObject @{ a = 1; b = 2 }
-            $result | Should -BeIn '?a=1&b=2', '?b=2&a=1'
+            $result | Should -BeIn 'a=1&b=2', 'b=2&a=1'
         }
 
         It 'Should URL encode spaces as %20 by default' {
             $result = ConvertTo-WebQueryString -InputObject @{ a = 'this is value of a'; b = 'valueOfB' }
-            $result | Should -BeIn '?a=this%20is%20value%20of%20a&b=valueOfB', '?b=valueOfB&a=this%20is%20value%20of%20a'
+            $result | Should -BeIn 'a=this%20is%20value%20of%20a&b=valueOfB', 'b=valueOfB&a=this%20is%20value%20of%20a'
         }
 
         It "Should use '+' for spaces when -AsURLEncoded is specified" {
             $result = ConvertTo-WebQueryString -InputObject @{ a = 'this is value of a'; b = 'valueOfB' } -AsURLEncoded
-            $result | Should -BeIn '?a=this+is+value+of+a&b=valueOfB', '?b=valueOfB&a=this+is+value+of+a'
+            $result | Should -BeIn 'a=this+is+value+of+a&b=valueOfB', 'b=valueOfB&a=this+is+value+of+a'
         }
 
         It 'Should handle an empty hashtable correctly' {
