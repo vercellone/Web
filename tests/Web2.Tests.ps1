@@ -112,5 +112,4 @@
             (Join-UriAndQueryParameters -Uri $Uri -QueryParameters $QueryParameters).ToString() | Should -Be $ExpectedUri
         }
     }
-
 }

@@ -46,13 +46,16 @@
         <Add description here>
 
         .LINK
-        https://referencesource.microsoft.com/#system.web/HttpQSCollection.cs
+        https://psmodule.io/Web/Functions/ConvertTo-WebQueryString/
     #>
     [CmdletBinding()]
     param(
         # The object to be converted.
         # Accepts IDictionary, HttpQSCollection, or NameValueCollection objects.
-        [Parameter(Position = 0, ValueFromPipeline)]
+        [Parameter(
+            Position = 0,
+            ValueFromPipeline
+        )]
         [object] $InputObject
     )
 

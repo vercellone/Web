@@ -19,14 +19,13 @@
         <Add description here>
 
         .EXAMPLE
-        $kvCollection = 'pagelen=50&state=OPEN&state=MERGED&q=created_on%3e%3d2024-01-25T16%3a37%3a56Z' | ConvertFrom-WebQueryString
-        foreach($key in $kvCollection.Keys) {
-            Write-Host "$key = $($kvCollection[$key])"
-        }
+        'pagelen=50&state=OPEN&state=MERGED&q=created_on%3e%3d2024-01-25T16%3a37%3a56Z' | ConvertFrom-WebQueryString -AsHashTable
         ----
-        pagelen = 50
-        state = OPEN,MERGED
-        q = created_on>=2024-01-25T16:37:56Z
+        Name                           Value
+        ----                           -----
+        q                              created_on>=2024-01-25T16:37:56Z
+        pagelen                        50
+        state                          OPEN,MERGED
 
         <Add description here>
 

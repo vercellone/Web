@@ -4,39 +4,39 @@ function Join-WebUriAndQueryParameters {
         Join a query string parameters collection into a Uri with or without its own query string.
 
         .EXAMPLE
-        (Join-WebUriAndQueryParameters -Uri 'https://dev.azure.com/MyOrg/MyProject/_apis/git/repositories/MyRepo/commits' -QueryParameters @{
+        (Join-WebUriAndQueryParameters -Uri 'https://example.com/api/getsomething' -QueryParameters @{
             'searchCriteria.fromDate' = '6/14/2023 12:00:00'
             '$top' = 200
         }).ToString()
         ----
-        https://dev.azure.com/MyOrg/MyProject/_apis/git/repositories/MyRepo/commits?$top=200&searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00
+        https://example.com/api/getsomething?$top=200&searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00
 
         <Add description here>
 
         .EXAMPLE
         $params = @{
-            Uri = 'https://dev.azure.com/MyOrg/MyProject/_apis/git/repositories/MyRepo/commits?searchCriteria.fromDate=6/14/2023 12:00:00'
+            Uri = 'https://example.com/api/getsomething?searchCriteria.fromDate=6/14/2023 12:00:00'
             QueryParameters = @{
                 '$top' = 200
             }
         }
         (Join-WebUriAndQueryParameters @params ).ToString()
         ----
-        https://dev.azure.com/MyOrg/MyProject/_apis/git/repositories/MyRepo/commits?searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00&$top=200
+        https://example.com/api/getsomething?searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00&$top=200
 
         <Add description here>
 
         .EXAMPLE
-        (Join-WebUriAndQueryParameters -Uri 'https://dev.azure.com/MyOrg/MyProject/_apis/git/repositories/MyRepo/commits?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200').ToString()
+        (Join-WebUriAndQueryParameters -Uri 'https://example.com/api/getsomething?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200').ToString()
         ----
-        https://dev.azure.com/MyOrg/MyProject/_apis/git/repositories/MyRepo/commits?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200
+        https://example.com/api/getsomething?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200
 
         <Add description here>
 
         .EXAMPLE
-        (Join-WebUriAndQueryParameters -Uri 'https://dev.azure.com/MyOrg/MyProject/_apis/git/repositories/MyRepo/commits?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200').ToString()
+        (Join-WebUriAndQueryParameters -Uri 'https://example.com/api/getsomething?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200').ToString()
         ----
-        https://dev.azure.com/MyOrg/MyProject/_apis/git/repositories/MyRepo/commits?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200
+        https://example.com/api/getsomething?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200
 
         <Add description here>
 
