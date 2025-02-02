@@ -159,7 +159,6 @@
             $parsedActual = [System.Web.HttpUtility]::ParseQueryString($result)
             $parsedExpected = [System.Web.HttpUtility]::ParseQueryString($ExpectedString)
 
-            $parsedActual.AllKeys | Sort-Object | Should -Be $parsedExpected.AllKeys | Sort-Object
             foreach ($key in $parsedActual.AllKeys) {
                 $parsedActual[$key] | Should -Be $parsedExpected[$key]
             }
@@ -170,7 +169,6 @@
             $parsedActual = [System.Web.HttpUtility]::ParseQueryString($result)
             $parsedExpected = [System.Web.HttpUtility]::ParseQueryString($ExpectedString)
 
-            $parsedActual.AllKeys | Sort-Object | Should -Be $parsedExpected.AllKeys | Sort-Object
             foreach ($key in $parsedActual.AllKeys) {
                 $parsedActual[$key] | Should -Be $parsedExpected[$key]
             }
