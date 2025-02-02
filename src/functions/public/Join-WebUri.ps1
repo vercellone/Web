@@ -17,7 +17,7 @@
         .EXAMPLE
         Join-WebUri 'https://example.com' '/foo/' '/bar/' '//baz/something/' '/test/'
         ----
-        <https://example.com/foo/bar/baz/something/test>
+        https://example.com/foo/bar/baz/something/test
 
         Combines the base URI <https://example.com> with the child paths '/foo/', '/bar/', '//baz/something/', and '/test/'.
 

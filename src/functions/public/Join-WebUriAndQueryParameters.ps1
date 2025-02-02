@@ -1,7 +1,12 @@
 function Join-WebUriAndQueryParameters {
     <#
         .SYNOPSIS
-        Join a query string parameters collection into a Uri with or without its own query string.
+        Joins a query string parameters collection into a URI while preserving or appending query parameters.
+
+        .DESCRIPTION
+        This function takes a base URI and a collection of query parameters and combines them into a single URI.
+        If the provided URI already contains a query string, the additional query parameters are appended.
+        Query parameters are URL-encoded to ensure proper formatting.
 
         .EXAMPLE
         (Join-WebUriAndQueryParameters -Uri 'https://example.com/api/getsomething' -QueryParameters @{
@@ -11,7 +16,7 @@ function Join-WebUriAndQueryParameters {
         ----
         https://example.com/api/getsomething?$top=200&searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00
 
-        <Add description here>
+        Combines the base URI with the provided query parameters and returns the correctly formatted URI.
 
         .EXAMPLE
         $params = @{
@@ -20,25 +25,18 @@ function Join-WebUriAndQueryParameters {
                 '$top' = 200
             }
         }
-        (Join-WebUriAndQueryParameters @params ).ToString()
+        (Join-WebUriAndQueryParameters @params).ToString()
         ----
         https://example.com/api/getsomething?searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00&$top=200
 
-        <Add description here>
+        Appends the provided query parameters to an existing URI that already contains query parameters.
 
         .EXAMPLE
         (Join-WebUriAndQueryParameters -Uri 'https://example.com/api/getsomething?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200').ToString()
         ----
-        https://example.com/api/getsomething?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200
+        https://example.com/api/getsomething?searchCriteria.fromDate=6/14/2023+12%3a00%3a00&$top=200
 
-        <Add description here>
-
-        .EXAMPLE
-        (Join-WebUriAndQueryParameters -Uri 'https://example.com/api/getsomething?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200').ToString()
-        ----
-        https://example.com/api/getsomething?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200
-
-        <Add description here>
+        Returns the original URI unmodified when no additional query parameters are provided.
 
         .OUTPUTS
         [Uri]
@@ -48,20 +46,20 @@ function Join-WebUriAndQueryParameters {
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'Truth over convention')]
     [OutputType([Uri])]
-    [cmdletBinding()]
+    [CmdletBinding()]
     param(
-        # A valid Uri object.
-        [Parameter()]
+        # A valid URI object to which query parameters will be appended.
+        [Parameter(Mandatory = $true)]
         [Uri] $Uri,
 
-        # An IDictionary or NameValueCollection of query parameters. If ANY QueryParameters are specified,
-        # then ALL query parameters will be UrlEncoded. If NONE, then the original Uri.Query is not modified (not UrlEncoded).
+        # A hashtable or NameValueCollection of query parameters to append to the URI.
+        # If specified, all query parameters (including existing ones in the URI) will be URL-encoded.
         [Parameter()]
         [object] $QueryParameters
     )
 
     if ($null -ne $QueryParameters -and ($QueryParameters.Count -gt 0 -or $QueryParameters.Keys.Count -gt 0)) {
-        # Build a new Uri with a new query composed of both those in the original Uri and in the QueryParameters collection
+        # Build a new URI with a new query composed of both those in the original URI and in the QueryParameters collection
         $uriBuilder = [UriBuilder]::new($Uri)
         $uriBuilder.Query = [Web.HttpUtility]::ParseQueryString($Uri.Query), $QueryParameters | ConvertTo-WebQueryString
         $uriBuilder.Uri
