@@ -1,64 +1,69 @@
-﻿filter ConvertTo-WebQueryString {
+function ConvertTo-WebQueryString {
     <#
-        .SYNOPSIS
-        Converts an object to a properly formatted web query string.
+    .SYNOPSIS
+        Joins the parameters of an IDictionary object into a query string.
 
-        .DESCRIPTION
-        This function takes an input object (typically a hashtable) and converts it into a web query string.
-        It encodes the keys and values to ensure compatibility with URLs.
-        If the `-AsURLEncoded` switch is provided, the encoding will be URL-friendly, using `+` for spaces instead of `%20`.
+    .PARAMETER InputObject
+        IDictionary, HttpQSCollection, or NameValueCollection Object to be converted.
 
-        .EXAMPLE
-        ConvertTo-WebQueryString -InputObject @{a = 1; b = 2 }
+    .EXAMPLE
+        @{ taco = 12;burrito = 8;quesadilla = 6 } | ConvertTo-WebQueryString
 
-        ?a=1&b=2
+        taco=12&quesadilla=6&burrito=8
 
-        Converts a hashtable into a query string with key-value pairs.
+    .EXAMPLE
+        @{ state = 'OPEN' },@{ state = 'MERGED' } | ConvertTo-WebQueryString
 
-        .EXAMPLE
-        ConvertTo-WebQueryString -InputObject @{a='this is value of a'; b='valueOfB'}
+        state=OPEN&state=MERGED
 
-        ?a=this%20is%20value%20of%20a&b=valueOfB
+    .EXAMPLE
+        $nvCollection =  [System.Web.HttpUtility]::ParseQueryString([string]::Empty)
+        $nvCollection.Add('pagelen', 50)
+        $nvCollection.Add('state', 'OPEN')
+        $nvCollection.Add('state', 'MERGED')
+        ConvertTo-WebQueryString -InputObject $nvCollection
 
-        Converts a hashtable where values contain spaces. The default encoding uses `%20` for spaces.
+        pagelen=50&state=OPEN&state=MERGED
 
-        .EXAMPLE
-        ConvertTo-WebQueryString -InputObject @{a='this is value of a'; b='valueOfB'} -AsURLEncoded
+    .EXAMPLE
+        $nvCollection =  [System.Web.HttpUtility]::ParseQueryString([string]::Empty)
+        $nvCollection.Add('pagelen', 50)
+        $nvCollection.Add('state', 'OPEN')
+        $nvCollection.Add('state', 'MERGED')
+        $nvCollection.Add('q', 'created_on>=2024-01-25T16:37:56Z')
+        # The leading comma below is significant.  Without it, only the array of key strings
+        # are piped to ConvertTo-WebQueryString which will output $null as a result.
+        ,$nvCollection | ConvertTo-WebQueryString
 
-        ?a=this+is+value+of+a&b=valueOfB
+        pagelen=50&state=OPEN&state=MERGED&q=created_on%3e%3d2024-01-25T16%3a37%3a56Z
 
-        Converts a hashtable while using `+` for spaces, which is preferred in some URL encoding schemes.
-
-        .LINK
-        https://psmodule.io/Web/Functions/ConvertTo-WebQueryString/
+    .LINK
+        https://referencesource.microsoft.com/#system.web/HttpQSCollection.cs
     #>
-    [OutputType([string])]
     [CmdletBinding()]
     param(
-        # The input object to be converted into a query string.
-        # Must be a hashtable or convertible to one.
-        [Parameter(
-            Mandatory,
-            ValueFromPipeline
-        )]
-        [hashtable] $InputObject,
-
-        # Switch to enable alternative URL encoding (`+` for spaces).
-        [Parameter()]
-        [switch] $AsURLEncoded
+        [Parameter(Position = 0, ValueFromPipeline)]
+        [object]$InputObject
     )
-
-    $parameters = if ($AsURLEncoded) {
-        ($InputObject.GetEnumerator() | ForEach-Object {
-            "$([System.Web.HttpUtility]::UrlEncode($_.Key))=$([System.Web.HttpUtility]::UrlEncode($_.Value))"
-        }) -join '&'
-    } else {
-        ($InputObject.GetEnumerator() | ForEach-Object {
-            "$([System.Uri]::EscapeDataString($_.Key))=$([System.Uri]::EscapeDataString($_.Value))"
-        }) -join '&'
+    begin {
+        # This creates an empty HttpQSCollection which provides the magic .ToString method
+        $nvCollection = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)
+    }
+    process {
+        if ($InputObject -is [Collections.Specialized.NameValueCollection]) {
+            $nvCollection.Add($InputObject)
+        }
+        elseif ( $InputObject -is [Collections.IDictionary]) {
+            foreach ($key in $InputObject.Keys) {
+                $nvCollection.Add($key, $InputObject.$Key)
+            }
+        }
+        else {
+            throw "InputObject type not supported: $($InputObject.GetType())"
+        }
     }
 
-    if ($parameters) {
-        '?' + $parameters
+    end {
+        $nvCollection.ToString()
     }
 }
