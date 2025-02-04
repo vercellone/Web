@@ -1,4 +1,4 @@
-﻿function ConvertTo-WebQueryString {
+function ConvertTo-WebQueryString {
     <#
     .SYNOPSIS
         Joins the parameters of an IDictionary object into a query string.
