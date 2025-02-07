@@ -171,7 +171,8 @@ Describe 'Web' {
             $actualFullUri = Join-WebUriAndQueryParameters -Uri $Uri -QueryParameters $QueryParameters
 
             # First, do a direct string compare on the full URI
-            $actualFullUri.ToString() | Should -Be $ExpectedUri
+            # The regex is used to allow $ to be encoded to %24 by pwsh 7.5+
+            $actualFullUri.ToString() | Should -Match ([Regex]::Escape($ExpectedUri) -replace '\\\$','(\$|%24)')
 
             # Then, parse the query to compare keys/values
             $expectedUriObj = [System.Uri] $ExpectedUri
