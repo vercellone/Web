@@ -139,7 +139,7 @@ Describe 'Web' {
     Context 'Join-WebUriAndQueryParameters' {
         $joinTestCases = @(
             @{
-                ExpectedUri     = 'https://aka.no/c?searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00&%24top=100'
+                ExpectedUri     = 'https://aka.no/c?searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00&$top=100'
                 QueryParameters = @{
                     'searchCriteria.fromDate' = '6/14/2023 12:00:00'
                     '$top'                    = 100
@@ -147,7 +147,7 @@ Describe 'Web' {
                 Uri             = 'https://aka.no/c'
             },
             @{
-                ExpectedUri     = 'https://aka.no/c?searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00&%24top=200'
+                ExpectedUri     = 'https://aka.no/c?searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00&$top=200'
                 QueryParameters = @{
                     '$top' = 200
                 }
