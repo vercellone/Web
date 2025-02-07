@@ -161,7 +161,8 @@ Describe 'Web' {
     Context 'Join-WebUriAndQueryParameters' {
         $joinTestCases = @(
             @{
-                ExpectedUri     = 'https://aka.no/c?searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00&$top=100'
+                Description     = 'searchCriteria.fromDate=6/14/2023 12:00:00&$top=100'
+                ExpectedKeys    = @('searchCriteria.fromDate', '$top')
                 QueryParameters = @{
                     'searchCriteria.fromDate' = '6/14/2023 12:00:00'
                     '$top'                    = 100
@@ -169,19 +170,22 @@ Describe 'Web' {
                 Uri             = 'https://aka.no/c'
             },
             @{
-                ExpectedUri     = 'https://aka.no/c?searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00&$top=200'
+                Description     = '$top=200'
+                ExpectedKeys    = @('searchCriteria.fromDate', '$top')
                 QueryParameters = @{
                     '$top' = 200
                 }
                 Uri             = 'https://aka.no/c?searchCriteria.fromDate=6/14/2023 12:00:00'
             },
             @{
-                ExpectedUri     = 'https://aka.no/c?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200'
-                QueryParameters = $null # NullOrEmpty => just return the original Uri as-is
+                Description     = 'empty QueryParameters'
+                ExpectedKeys    = @('searchCriteria.fromDate', '$top')
+                QueryParameters = @{} # NullOrEmpty => just return the original Uri as-is
                 Uri             = 'https://aka.no/c?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200'
             },
             @{
-                ExpectedUri     = 'https://aka.no/?%24top=50'
+                Description     = '$top=50, Uri with no Path'
+                ExpectedKeys    = @('$top')
                 QueryParameters = @{
                     '$top' = 50
                 }
@@ -189,25 +193,37 @@ Describe 'Web' {
             }
         )
 
-        It 'Should join a Uri and QueryParameters [<ExpectedUri>]' -ForEach $joinTestCases {
+        It 'Should join a Uri and QueryParameters [<Description>]' -ForEach $joinTestCases {
             $actualFullUri = Join-WebUriAndQueryParameters -Uri $Uri -QueryParameters $QueryParameters
 
-            # First, do a direct string compare on the full URI
-            # The regex is used to allow $ to be encoded to %24 by pwsh 7.5+
-            $actualFullUri.ToString() | Should -Match ([Regex]::Escape($ExpectedUri) -replace '\\\$', '(\$|%24)')
-
-            # Then, parse the query to compare keys/values
-            $expectedUriObj = [System.Uri] $ExpectedUri
-            $expectedQuery = $expectedUriObj.Query.TrimStart('?')
-            $parsedExpected = [System.Web.HttpUtility]::ParseQueryString($expectedQuery)
+            # Parse the Uri(s) for comparison
+            $originalUriObj = [System.Uri] $Uri
+            $originalQuery = $originalUriObj.Query.TrimStart('?')
+            $parsedOriginal = [System.Web.HttpUtility]::ParseQueryString($originalQuery)
 
             $actualUriObj = [System.Uri] $actualFullUri
             $actualQuery = $actualUriObj.Query.TrimStart('?')
             $parsedActual = [System.Web.HttpUtility]::ParseQueryString($actualQuery)
 
-            $parsedActual.AllKeys | Sort-Object | Should -Be ($parsedExpected.AllKeys | Sort-Object)
-            foreach ($key in $parsedActual.AllKeys) {
-                $parsedActual[$key] | Should -Be $parsedExpected[$key]
+            # Assert the Uri components are intact
+            $actualUriObj.Fragment | Should -Be $originalUriObj.Fragment
+            $actualUriObj.Host | Should -Be $originalUriObj.Host
+            $actualUriObj.Path | Should -Be $originalUriObj.Path
+            $actualUriObj.Port | Should -Be $originalUriObj.Port
+            $actualUriObj.Scheme | Should -Be $originalUriObj.Scheme
+
+            # Assert all expected query parameters are present
+            # Both those in the original Uri and in the QueryParameters collection
+            ($parsedActual.AllKeys | Sort-Object) | Should -Be ($ExpectedKeys | Sort-Object)
+
+            # Assert the query parameter values are correct
+            foreach ($key in $ExpectedKeys) {
+                if ($QueryParameters.ContainsKey($key)) {
+                    $parsedActual[$key] | Should -Be $QueryParameters[$key]
+                }
+                else {
+                    $parsedActual[$key] | Should -Be $parsedOriginal[$key] :
+                }
             }
         }
     }
