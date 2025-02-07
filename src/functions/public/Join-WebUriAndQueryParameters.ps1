@@ -1,36 +1,54 @@
 function Join-WebUriAndQueryParameters {
     <#
     .SYNOPSIS
-        Join a query string parameters collection into a Uri with or without its own Query string.
+        Join a query string parameters collection into a URI with or without its own Query string.
 
     .PARAMETER Uri
-        A valid Uri object.
+        A valid URI object.
 
     .PARAMETER QueryParameters
-        An IDictionary or NameValueCollection of query parameters. If ANY QueryParameters are specified, then ALL query parameters will be UrlEncoded. If NONE, then the original Uri.Query is not modified (not UrlEncoded).
+        An IDictionary or NameValueCollection of query parameters. If ANY QueryParameters are specified,
+        then ALL query parameters will be UrlEncoded. If NONE, then the original URI.Query is not modified (not UrlEncoded).
 
     .EXAMPLE
-        > (Join-WebUriAndQueryParameters -Uri 'https://dev.azure.com/PSSodium/MyProject/_apis/git/repositories/Sodium/commits' -QueryParameters @{
-            'searchCriteria.fromDate' = '6/14/2023 12:00:00'
-            '$top' = 200
-        }).ToString()
+        $joinParams = @{
+            Uri             = 'https://aka.no/commits'
+            QueryParameters = @{
+                'searchCriteria.fromDate' = '6/14/2023 12:00:00'
+                '$top'                    = 200
+            }
+        }
+        (Join-WebUriAndQueryParameters @joinParams).ToString()
 
-        https://dev.azure.com/PSSodium/MyProject/_apis/git/repositories/Sodium/commits?$top=200&searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00
-
-    .EXAMPLE
-        > (Join-WebUriAndQueryParameters -Uri 'https://dev.azure.com/PSSodium/MyProject/_apis/git/repositories/Sodium/commits?searchCriteria.fromDate=6/14/2023 12:00:00' -QueryParameters @{ '$top' = 200 }).ToString()
-
-        https://dev.azure.com/PSSodium/MyProject/_apis/git/repositories/Sodium/commits?searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00&$top=200
-
-    .EXAMPLE
-        > (Join-WebUriAndQueryParameters -Uri 'https://dev.azure.com/PSSodium/MyProject/_apis/git/repositories/Sodium/commits?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200').ToString()
-
-        https://dev.azure.com/PSSodium/MyProject/_apis/git/repositories/Sodium/commits?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200
+        Returns `https://aka.no/commits?searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00&%24top=200`
 
     .EXAMPLE
-        > (Join-WebUriAndQueryParameters -Uri 'https://dev.azure.com/PSSodium/MyProject/_apis/git/repositories/Sodium/commits?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200' -QueryParameters $null).ToString()
+        $joinParams = @{
+            Uri             = 'https://aka.no/commits?searchCriteria.fromDate=6/14/2023 12:00:00'
+            QueryParameters = @{
+                '$top' = 200
+            }
+        }
+        (Join-WebUriAndQueryParameters @joinParams).ToString()
 
-        https://dev.azure.com/PSSodium/MyProject/_apis/git/repositories/Sodium/commits?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200
+        Returns `https://aka.no/commits?searchCriteria.fromDate=6%2f14%2f2023+12%3a00%3a00&%24top=200`
+
+    .EXAMPLE
+        $joinParams = @{
+            Uri = 'https://aka.no/commits?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200'
+        }
+        (Join-WebUriAndQueryParameters @joinParams).ToString()
+
+        Returns `https://aka.no/commits?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200`
+
+    .EXAMPLE
+        $joinParams = @{
+            Uri             = 'https://aka.no/commits?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200'
+            QueryParameters = $null
+        }
+        (Join-WebUriAndQueryParameters @joinParams).ToString()
+
+        Returns `https://aka.no/commits?searchCriteria.fromDate=6/14/2023 12:00:00&$top=200`
 
     .OUTPUTS
         [Uri]
@@ -43,12 +61,11 @@ function Join-WebUriAndQueryParameters {
         $QueryParameters
     )
     if ($null -ne $QueryParameters -and ($QueryParameters.Count -gt 0 -or $QueryParameters.Keys.Count -gt 0)) {
-        # Build a new Uri with a new query composed of both those in the original Uri and in the QueryParameters collection
+        # Build a new URI with a new query composed of both those in the original URI and in the QueryParameters collection
         $uriBuilder = [UriBuilder]::new($Uri)
         $uriBuilder.Query = [Web.HttpUtility]::ParseQueryString($Uri.Query), $QueryParameters | ConvertTo-WebQueryString
         $uriBuilder.Uri
-    }
-    else {
+    } else {
         $Uri # No additional parameters, return Uri unmodified
     }
 }
