@@ -37,6 +37,28 @@ Describe 'Web' {
         }
     }
 
+    Context 'Join-WebUri' {
+        It 'Should join base URI with child paths' {
+            $result = Join-WebUri -Path 'https://example.com' -ChildPath 'foo' -AdditionalChildPath 'bar'
+            $result | Should -Be 'https://example.com/foo/bar'
+        }
+        It 'Should normalize and remove duplicate slashes' {
+            $result = Join-WebUri -Path 'https://example.com' -ChildPath '/foo/' -AdditionalChildPath '/bar/'
+            $result | Should -Be 'https://example.com/foo/bar'
+        }
+        It 'Should handle multiple additional paths' {
+            $result = Join-WebUri 'https://example.com' '/foo/' '/bar/' '//baz/something/' '/test/'
+            $result | Should -Be 'https://example.com/foo/bar/baz/something/test'
+        }
+        It 'Should trim leading and trailing slashes from child paths' {
+            $result = Join-WebUri -Path 'https://example.com/' -ChildPath '/foo/' -AdditionalChildPath '/bar/'
+            $result | Should -Be 'https://example.com/foo/bar'
+        }
+        It 'Should throw an error when Path is not a valid URI' {
+            { Join-WebUri -Path 'invalidURI' -ChildPath 'foo' } | Should -Throw
+        }
+    }
+
     ###############################################################################
     # Context: ConvertFrom-WebQueryString
     ###############################################################################
